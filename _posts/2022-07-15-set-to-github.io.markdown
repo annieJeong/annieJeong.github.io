@@ -5,7 +5,8 @@ date:   2022-07-15
 categories: github
 ---
 
-github io jekyll [템플릿][jekyll-git]을 사용하여 생성하였다.
+github io jekyll 템플릿중에   
+[github.com/thelehhman/plainwhite-jekyll][jekyll-git]템플릿을 사용하여 생성하였다.
 
 repository 생성시 이름을 xxx.github.io 로 생성한다.
 >github 가입한 계정과 github.io repository를 동일하게 생성하면 url이 단순하다.   
