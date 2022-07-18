@@ -5,11 +5,15 @@ date:   2022-07-15
 categories: github
 ---
 
+개인 github.io 생성하기에 앞서 github.io란
+github에서 제공하는 정적 웹사이트 호스팅으로서 자신의 repository에서 웹 페이지 구동이 가능하게 해주는 서비스입니다.
+
+
 github io jekyll 템플릿중에   
 [github.com/thelehhman/plainwhite-jekyll][jekyll-git]템플릿을 사용하여 생성하였다.
 
 repository 생성시 이름을 xxx.github.io 로 생성한다.
->github 가입한 계정과 github.io repository를 동일하게 생성하면 url이 단순하다.   
+>github 가입한 계정과 github.io repository prefix name을 동일하게 생성하면 url이 단순하다.   
 >동일할 경우 : http://${name}.github.io   
 >다를 경우 : http://${name}.github.io/${repository.name}
 
@@ -46,6 +50,8 @@ $ git clone git@github.com:annieJeong/annieJeong.github.io.git
 2. `bundle exec jekyll serve`
 
 2 단계에서 아래와 같은 에러가 발생했다.
+<br/>
+
 ```sh
 C:\Workspace\annieJeong.github.io>bundle exec jekyll serve
 Configuration file: C:/Workspace/annieJeong.github.io/_config.yml
@@ -81,6 +87,7 @@ C:/Ruby31-x64/lib/ruby/gems/3.1.0/gems/jekyll-4.2.2/lib/jekyll/commands/serve/se
         from C:/Ruby31-x64/bin/jekyll:32:in `<main>'
 ```
 <br/>
+
 명령어에 옵션을 추가하여 실행하라는 에러 발생하여 추가해서 실행하였다.
 
 `bundle exec jekyll serve --trace`
@@ -117,6 +124,7 @@ C:/Ruby31-x64/lib/ruby/gems/3.1.0/gems/jekyll-4.2.2/lib/jekyll/commands/serve/se
         from C:/Ruby31-x64/bin/jekyll:32:in `load'
         from C:/Ruby31-x64/bin/jekyll:32:in `<main>'
 ```
+<br/>
 
 trace 옵션 추가 에러는 사라지고 
 ```sh
@@ -129,6 +137,7 @@ webrick 을 찾을 수 없다는 에러가 발생하고 있었다.
 C:\Workspace\annieJeong.github.io>bundle add webrick
 ```
 webrick 을 추가 후 실행했더니 정상 동작했다.
+<br/>
 
 ```sh
 C:\Workspace\annieJeong.github.io>bundle exec jekyll serve --trace
@@ -145,6 +154,7 @@ Configuration file: C:/Workspace/annieJeong.github.io/_config.yml
     Server address: http://127.0.0.1:4000
   Server running... press ctrl-c to stop.
 ```
+<br/>
 
 소스 수정후 로컬 서버에서 수정내용을 확인할 수 있고,
 push 하면 web페이지에도 반영이되는것을 볼 수 있다.
