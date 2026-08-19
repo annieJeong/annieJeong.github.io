@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>프로젝트 착수 전 질의사항</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --panel:#ffffff; --border:#e2e5ea; --text:#1c1f24; --muted:#666e7a;
+    --accent:#2f6fd0; --accent-soft:#eaf1fc; --note:#b8541a; --note-bg:#fff6ef;
+    --ok:#1a7f4b; --danger:#c0392b; --new:#7b5cd6; --new-soft:#f0ecfb;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#15171a; --panel:#1e2126; --border:#2f343b; --text:#e6e8ea; --muted:#9aa2ad;
+      --accent:#6fa5f0; --accent-soft:#1c2836; --note:#e8a06a; --note-bg:#2a2118;
+      --ok:#5fca92; --danger:#e8776a; --new:#a891f0; --new-soft:#241f33;
+    }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:0 16px 80px; background:var(--bg); color:var(--text);
+    font-family:"Malgun Gothic","맑은 고딕",-apple-system,"Segoe UI",sans-serif;
+    line-height:1.6; font-size:15px;
+  }
+  .wrap{max-width:900px; margin:0 auto}
+  header{
+    position:sticky; top:0; z-index:10; background:var(--bg);
+    padding:20px 0 12px; border-bottom:1px solid var(--border); margin-bottom:24px;
+  }
+  h1{margin:0 0 4px; font-size:22px}
+  .sub{color:var(--muted); font-size:13px; margin:0}
+  .bar{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:12px}
+  button{font:inherit; cursor:pointer}
+  .bar button{
+    font-size:13px; padding:6px 12px; border:1px solid var(--border);
+    background:var(--panel); color:var(--text); border-radius:6px;
+  }
+  .bar button:hover{border-color:var(--accent); color:var(--accent)}
+  .bar button.primary{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600}
+  .bar button.primary:hover{opacity:.88; color:#fff}
+  .status{font-size:13px; color:var(--muted); margin-left:auto}
+  .status.saved{color:var(--ok)}
+  .progress{font-size:13px; color:var(--muted); padding:4px 10px; background:var(--panel);
+    border:1px solid var(--border); border-radius:99px}
+  h2{
+    font-size:17px; margin:36px 0 14px; padding:8px 12px;
+    background:var(--accent-soft); color:var(--accent); border-radius:6px;
+    display:flex; align-items:center; gap:10px;
+  }
+  h2 .add-btn{
+    margin-left:auto; font-size:12px; padding:3px 10px; border-radius:99px;
+    border:1px solid var(--accent); background:transparent; color:var(--accent);
+  }
+  h2 .add-btn:hover{background:var(--accent); color:#fff}
+  .q{
+    background:var(--panel); border:1px solid var(--border); border-radius:8px;
+    padding:14px 16px; margin-bottom:14px;
+  }
+  .q.done{border-left:3px solid var(--ok)}
+  .q.custom{border-left:3px solid var(--new)}
+  .q.custom.done{border-left:3px solid var(--ok)}
+  .qhead{display:flex; gap:10px; align-items:flex-start}
+  .num{
+    flex:0 0 auto; min-width:24px; height:24px; padding:0 6px; border-radius:6px;
+    background:var(--accent); color:#fff; font-size:12px; font-weight:700;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .q.custom .num{background:var(--new)}
+  .qtext{flex:1; min-width:0}
+  .qtext.custom-text{white-space:pre-line}
+  .qtext ol{margin:6px 0 0 18px; padding:0}
+  .qtext ol li{margin:2px 0; color:var(--muted); font-size:14px}
+  .ex{color:var(--muted); font-size:14px; display:block; margin-top:4px}
+  .note{
+    display:block; margin-top:8px; padding:8px 10px; background:var(--note-bg);
+    border-left:3px solid var(--note); border-radius:0 4px 4px 0;
+    color:var(--note); font-size:14px; font-weight:600; white-space:pre-line;
+  }
+  .badge{
+    display:inline-block; margin-left:6px; padding:1px 7px; border-radius:99px;
+    background:var(--new-soft); color:var(--new); font-size:11px; font-weight:700;
+    vertical-align:2px;
+  }
+  .del-btn{
+    flex:0 0 auto; font-size:12px; padding:3px 9px; border-radius:6px;
+    border:1px solid var(--border); background:transparent; color:var(--muted);
+  }
+  .del-btn:hover{border-color:var(--danger); color:var(--danger)}
+  textarea{
+    width:100%; margin-top:12px; min-height:78px; padding:10px 12px; resize:vertical;
+    font:inherit; font-size:14px; line-height:1.55; color:var(--text);
+    background:var(--bg); border:1px solid var(--border); border-radius:6px;
+  }
+  textarea:focus{outline:none; border-color:var(--accent); background:var(--panel)}
+  textarea::placeholder{color:var(--muted); opacity:.7}
+  footer{margin-top:40px; color:var(--muted); font-size:12px; text-align:center}
+
+  /* ── 레이어 팝업 ───────────────────────────── */
+  .overlay{
+    position:fixed; inset:0; z-index:100; display:none;
+    background:rgba(0,0,0,.5); padding:24px 16px; overflow:auto;
+  }
+  .overlay.open{display:flex; align-items:flex-start; justify-content:center}
+  .modal{
+    width:100%; max-width:560px; margin:auto; background:var(--panel);
+    border:1px solid var(--border); border-radius:10px;
+    box-shadow:0 18px 50px rgba(0,0,0,.32); overflow:hidden;
+  }
+  .modal-head{
+    display:flex; align-items:center; padding:14px 18px;
+    border-bottom:1px solid var(--border);
+  }
+  .modal-head h3{margin:0; font-size:16px}
+  .modal-head .x{
+    margin-left:auto; border:none; background:transparent; color:var(--muted);
+    font-size:22px; line-height:1; padding:0 4px;
+  }
+  .modal-head .x:hover{color:var(--text)}
+  .modal-body{padding:18px}
+  .field{margin-bottom:14px}
+  .field:last-child{margin-bottom:0}
+  .field label{display:block; font-size:13px; font-weight:700; margin-bottom:6px}
+  .field label .req{color:var(--danger); margin-left:2px}
+  .field select{
+    width:100%; font:inherit; font-size:14px; padding:9px 10px; color:var(--text);
+    background:var(--bg); border:1px solid var(--border); border-radius:6px;
+  }
+  .field textarea{margin-top:0}
+  .field .hint{font-size:12px; color:var(--muted); margin-top:5px}
+  .err{
+    display:none; margin-bottom:14px; padding:8px 10px; border-radius:6px;
+    background:var(--note-bg); color:var(--danger); font-size:13px; font-weight:600;
+  }
+  .err.show{display:block}
+  .modal-foot{
+    display:flex; gap:8px; justify-content:flex-end;
+    padding:14px 18px; border-top:1px solid var(--border); background:var(--bg);
+  }
+  .modal-foot button{
+    font-size:14px; padding:8px 16px; border-radius:6px;
+    border:1px solid var(--border); background:var(--panel); color:var(--text);
+  }
+  .modal-foot button.primary{
+    background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600;
+  }
+  .modal-foot button.primary:hover{opacity:.88}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>프로젝트 착수 전 질의사항</h1>
+  <p class="sub">각 항목 아래에 답변을 입력하면 브라우저 로컬스토리지에 자동 저장됩니다.</p>
+  <div class="bar">
+    <span class="progress" id="progress">0 / 0 답변</span>
+    <button type="button" class="primary" id="addBtn">＋ 질문 추가</button>
+    <button type="button" id="copyBtn">전체 복사 (Markdown)</button>
+    <button type="button" id="exportBtn">.md 파일로 저장</button>
+    <button type="button" id="resetBtn">답변 초기화</button>
+    <span class="status" id="status">불러오는 중…</span>
+  </div>
+</header>
+
+<main id="main">
+
+<section data-section="common" data-label="공통 질의사항">
+  <h2>공통 질의사항<button type="button" class="add-btn" data-add="common">＋ 질문 추가</button></h2>
+  <div class="qlist">
+    <div class="q" data-key="common-1">
+      <div class="qhead"><span class="num">1</span><div class="qtext">출근장소 ( 양재 / 수원 )</div></div>
+    </div>
+    <div class="q" data-key="common-2">
+      <div class="qhead"><span class="num">2</span><div class="qtext">장비</div></div>
+    </div>
+    <div class="q" data-key="common-3">
+      <div class="qhead"><span class="num">3</span><div class="qtext">출퇴근 시간</div></div>
+    </div>
+  </div>
+</section>
+
+<section data-section="proto" data-label="프로토콜">
+  <h2>프로토콜<button type="button" class="add-btn" data-add="proto">＋ 질문 추가</button></h2>
+  <div class="qlist">
+    <div class="q" data-key="proto-1">
+      <div class="qhead"><span class="num">1</span><div class="qtext">사용한다고 되어있던 BACnet4j 라이브러리는 오픈소스. 오픈소스 라이브러리를 그대로 사용하는것인지? 이전에 사용중인 BACnet 라이브러리 그냥 동일하게 사용하면 될지?</div></div>
+    </div>
+    <div class="q" data-key="proto-2">
+      <div class="qhead"><span class="num">2</span><div class="qtext">3rdParty 역할이 좀 모호한데 정확한 요구사항
+        <ol>
+          <li>추가적인 프로토콜 대응 ( 기기정보수집용 )</li>
+          <li>여러 서비스들을 모아놓은 서비스인지</li>
+        </ol>
+      </div></div>
+    </div>
+    <div class="q" data-key="proto-3">
+      <div class="qhead"><span class="num">3</span><div class="qtext">레거시가 어떻게 구성되어있는지. 저희가 지금 돌아가고있는 서비스에 새로운 MS를 만드는것인지
+        <ol>
+          <li>만약 이미 구성되어있다면 DB는 ?</li>
+          <li>신규 구축이라면 Kafka 설정등은 ?</li>
+        </ol>
+      </div></div>
+    </div>
+    <div class="q" data-key="proto-4">
+      <div class="qhead"><span class="num">4</span><div class="qtext">디지털 트윈 서비스에 제공하는 api 서비스가 있어야 하는지 ?</div></div>
+    </div>
+  </div>
+</section>
+
+<section data-section="onto" data-label="온톨로지 개발">
+  <h2>온톨로지 개발<button type="button" class="add-btn" data-add="onto">＋ 질문 추가</button></h2>
+  <div class="qlist">
+    <div class="q" data-key="onto-1">
+      <div class="qhead"><span class="num">1</span><div class="qtext">[RFP p.5 1: 등록된 관제점 자동 조합 기능] "입력된 프롬프트를 기반으로" — 프롬프트가 관리자용 프론트에서 작성을 하는건지, 어떻게 관리되는지</div></div>
+    </div>
+    <div class="q" data-key="onto-2">
+      <div class="qhead"><span class="num">2</span><div class="qtext">[RFP p.5 1: 등록된 관제점 자동 조합 기능] "지능형 엔티티 관리"가 관리자용 프론트와 겹치는데 어떻게 나뉘는지</div></div>
+    </div>
+    <div class="q" data-key="onto-3">
+      <div class="qhead"><span class="num">3</span><div class="qtext">AI-Agent의 역할이 자동 조합 / 데이터 생성 / 데이터 핸드오버까지 전체 프로세스를 수행하는 것이 맞는지, 온톨로지 구현 파트에서 AI-Agent의 역할</div></div>
+    </div>
+    <div class="q" data-key="onto-4">
+      <div class="qhead"><span class="num">4</span><div class="qtext">온톨로지에서 활용되는 AI-Agent와 관리자용 프론트에서 활용되는 AI-Agent가 다른 것이 맞는지</div></div>
+    </div>
+    <div class="q" data-key="onto-5">
+      <div class="qhead"><span class="num">5</span><div class="qtext">AI-Agent 제공 형태</div></div>
+    </div>
+  </div>
+</section>
+
+<section data-section="admin" data-label="관리자 개발">
+  <h2>관리자 개발<button type="button" class="add-btn" data-add="admin">＋ 질문 추가</button></h2>
+  <div class="qlist">
+    <div class="q" data-key="admin-1">
+      <div class="qhead"><span class="num">1</span><div class="qtext"><strong>기본적으로 데이터의 생성, 변경, 삭제 기능 지원</strong>
+        <span class="note">=&gt; 어드민에서 생성할 데이터가 무엇이 있는지?</span>
+      </div></div>
+    </div>
+    <div class="q" data-key="admin-2">
+      <div class="qhead"><span class="num">2</span><div class="qtext"><strong>AI-Agent 인터페이스</strong>
+        <span class="note">=&gt; 표현이 모호하다 (UI적인 인터페이스를 말하는것인지??)</span>
+      </div></div>
+    </div>
+    <div class="q" data-key="admin-3">
+      <div class="qhead"><span class="num">3</span><div class="qtext">AI agent에서 생성된 Brick Ontology 온톨로지 기반 데이터의 무결성을 확인 및 데이터 편집 기능
+        <span class="ex">&lt;RFP 6, 7페이지&gt;</span>
+        <span class="note">=&gt; 무결성 확인의 절차가 모호 (AI Agent 프롬프트 기능이 들어가게 되는건지)</span>
+      </div></div>
+    </div>
+    <div class="q" data-key="admin-4">
+      <div class="qhead"><span class="num">4</span><div class="qtext">자동으로 관제점 조합으로 생성된 기기의 무결성 확인 및 편집 기능
+        <span class="ex">Ex) AHU, VAV, Fan, Pump 등</span>
+        <span class="note">=&gt; 무결성 확인의 절차가 모호 (AI Agent 프롬프트 기능이 들어가게 되는건지)</span>
+      </div></div>
+    </div>
+    <div class="q" data-key="admin-5">
+      <div class="qhead"><span class="num">5</span><div class="qtext">조합된 기기 및 등록된 관제점의 상태를 확인 및 TEST 제어 기능
+        <span class="note">=&gt; 어드민 -&gt; MSA -&gt; 실제기기 DDC 제어명령 들어가는 (에어밸브 더 열기, 온도 낮추기)
+실기기에 명령이 들어가는게 맞는건지, 아니라면 테스트 제어라는게 무슨 의미일지?</span>
+      </div></div>
+    </div>
+    <div class="q" data-key="admin-6">
+      <div class="qhead"><span class="num">6</span><div class="qtext">연결된 서비스 및 프로토콜 micro 서비스의 동작 확인 가능한 Test 기능
+        <span class="note">=&gt; 문제없음</span>
+      </div></div>
+    </div>
+    <div class="q" data-key="admin-7">
+      <div class="qhead"><span class="num">7</span><div class="qtext">생성되거나 변환된 데이터의 handover test 기능
+        <span class="note">=&gt; 변환된 NGSI-LD 데이터가 잘 변환된건지를 확인하는 기능이 맞는지?
+그게 아니라면, 어떤 방식의 테스트인지?</span>
+      </div></div>
+    </div>
+    <div class="q" data-key="admin-8">
+      <div class="qhead"><span class="num">8</span><div class="qtext">AI-agent에 프롬프트 입력 및 결과 확인, <em>데이터 변경 기능</em>
+        <span class="note">=&gt; 프롬프트 기능이 어느 범주까지 수행하는지…
+최소 기기 자동조합에 프롬프트로 생성되는건지
+아니면, 생성이 됐는데 수정할 때 프롬프트 명령을 받는건지..</span>
+      </div></div>
+    </div>
+    <div class="q" data-key="admin-9">
+      <div class="qhead"><span class="num">9</span><div class="qtext">각 서비스들의 동작 확인 및 서비스 정지, 재시작, 설정 기능
+        <span class="note">=&gt; [서비스 정지, 재시작, 설정 기능]에 대한 자세한 description이 필요</span>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<section data-section="etc" data-label="기타 추가 질문">
+  <h2>기타 추가 질문<button type="button" class="add-btn" data-add="etc">＋ 질문 추가</button></h2>
+  <div class="qlist"></div>
+</section>
+
+</main>
+
+<footer>답변은 이 브라우저에만 저장됩니다 (localStorage). 다른 PC/브라우저에서는 보이지 않습니다.</footer>
+</div>
+
+<!-- ── 질문 추가 레이어 팝업 ───────────────────────── -->
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">질문 추가</h3>
+      <button type="button" class="x" id="modalClose" aria-label="닫기">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="err" id="modalErr">질문 내용을 입력해 주세요.</div>
+      <div class="field">
+        <label for="mSection">구분</label>
+        <select id="mSection">
+          <option value="common">공통 질의사항</option>
+          <option value="proto">프로토콜</option>
+          <option value="onto">온톨로지 개발</option>
+          <option value="admin">관리자 개발</option>
+          <option value="etc">기타 추가 질문</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="mQuestion">질문<span class="req">*</span></label>
+        <textarea id="mQuestion" placeholder="질문 내용을 입력하세요…"></textarea>
+        <div class="hint">줄바꿈이 그대로 유지됩니다.</div>
+      </div>
+      <div class="field">
+        <label for="mAnswer">답변 <span style="font-weight:400;color:var(--muted)">(선택)</span></label>
+        <textarea id="mAnswer" placeholder="지금 답변을 알고 있다면 함께 입력하세요. 비워두고 나중에 작성해도 됩니다."></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" id="modalCancel">취소</button>
+      <button type="button" class="primary" id="modalSave">추가</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var ANSWER_KEY = 'rfp-qna-v1';
+  var CUSTOM_KEY = 'rfp-qna-custom-v1';
+
+  var statusEl   = document.getElementById('status');
+  var progressEl = document.getElementById('progress');
+  var overlay    = document.getElementById('overlay');
+  var mSection   = document.getElementById('mSection');
+  var mQuestion  = document.getElementById('mQuestion');
+  var mAnswer    = document.getElementById('mAnswer');
+  var mErr       = document.getElementById('modalErr');
+  var saveTimer  = null;
+  var lastFocus  = null;
+
+  function readJSON(key, fallback){
+    try {
+      var v = JSON.parse(localStorage.getItem(key));
+      return v === null || typeof v !== 'object' ? fallback : v;
+    } catch(e){ return fallback; }
+  }
+
+  var answers = readJSON(ANSWER_KEY, {});          // { key: 답변 텍스트 }
+  var customs = readJSON(CUSTOM_KEY, []);          // [ {id, section, question} ]
+  if (!Array.isArray(customs)) customs = [];
+
+  /* ── 저장 ──────────────────────────────── */
+  function pad(n){ return (n < 10 ? '0' : '') + n; }
+
+  function persist(msg){
+    try {
+      localStorage.setItem(ANSWER_KEY, JSON.stringify(answers));
+      localStorage.setItem(CUSTOM_KEY, JSON.stringify(customs));
+      var t = new Date();
+      setStatus(msg || ('저장됨 ' + pad(t.getHours()) + ':' + pad(t.getMinutes()) + ':' + pad(t.getSeconds())), true);
+    } catch(e){
+      setStatus('저장 실패: ' + e.message, false);
+    }
+  }
+
+  function queueSave(){
+    setStatus('입력 중…', false);
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){ persist(); }, 400);
+  }
+
+  function setStatus(msg, ok){
+    statusEl.textContent = msg;
+    statusEl.className = ok ? 'status saved' : 'status';
+  }
+
+  /* ── 카드 구성 ─────────────────────────── */
+  function markDone(card, val){
+    if (val && val.trim()) card.classList.add('done');
+    else card.classList.remove('done');
+  }
+
+  function attachTextarea(card){
+    var key = card.getAttribute('data-key');
+    var ta = document.createElement('textarea');
+    ta.placeholder = '답변 입력…';
+    ta.value = answers[key] || '';
+    ta.setAttribute('data-key', key);
+    card.appendChild(ta);
+    ta.addEventListener('input', function(){
+      answers[key] = ta.value;
+      markDone(card, ta.value);
+      updateProgress();
+      queueSave();
+    });
+    markDone(card, ta.value);
+    return ta;
+  }
+
+  // 추가된 질문 카드 생성
+  function buildCustomCard(item){
+    var card = document.createElement('div');
+    card.className = 'q custom';
+    card.setAttribute('data-key', item.id);
+    card.setAttribute('data-custom', '1');
+
+    var head = document.createElement('div');
+    head.className = 'qhead';
+
+    var num = document.createElement('span');
+    num.className = 'num';
+    num.textContent = '+';
+
+    var text = document.createElement('div');
+    text.className = 'qtext custom-text';
+    text.textContent = item.question;                 // textContent → HTML 주입 방지
+    var badge = document.createElement('span');
+    badge.className = 'badge';
+    badge.textContent = '추가';
+    text.appendChild(badge);
+
+    var del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'del-btn';
+    del.textContent = '삭제';
+    del.addEventListener('click', function(){ removeCustom(item.id); });
+
+    head.appendChild(num);
+    head.appendChild(text);
+    head.appendChild(del);
+    card.appendChild(head);
+    attachTextarea(card);
+    return card;
+  }
+
+  function sectionList(section){
+    var sec = document.querySelector('section[data-section="' + section + '"]');
+    return sec ? sec.querySelector('.qlist') : null;
+  }
+
+  function addCustom(section, question, answer){
+    var id = 'custom-' + section + '-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+    var item = { id: id, section: section, question: question };
+    customs.push(item);
+    if (answer && answer.trim()) answers[id] = answer;
+
+    var list = sectionList(section);
+    var card = buildCustomCard(item);
+    list.appendChild(card);
+    renumber();
+    updateProgress();
+    persist('질문이 추가되었습니다');
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function removeCustom(id){
+    var item = null;
+    for (var i = 0; i < customs.length; i++){ if (customs[i].id === id){ item = customs[i]; break; } }
+    var preview = item ? item.question.replace(/\s+/g, ' ').slice(0, 40) : '';
+    if (!confirm('추가한 질문을 삭제합니다.\n\n"' + preview + (preview.length >= 40 ? '…' : '') + '"\n\n입력한 답변도 함께 삭제됩니다. 계속할까요?')) return;
+
+    customs = customs.filter(function(c){ return c.id !== id; });
+    delete answers[id];
+    var card = document.querySelector('.q[data-key="' + id + '"]');
+    if (card) card.parentNode.removeChild(card);
+    renumber();
+    updateProgress();
+    persist('질문이 삭제되었습니다');
+  }
+
+  // 저장된 추가 질문 렌더링
+  customs.forEach(function(item){
+    var list = sectionList(item.section) || sectionList('etc');
+    if (list) list.appendChild(buildCustomCard(item));
+  });
+
+  // 원본(고정) 질문에 textarea 부착
+  Array.prototype.forEach.call(document.querySelectorAll('.q:not([data-custom])'), attachTextarea);
+
+  /* ── 번호 / 진행률 ─────────────────────── */
+  function renumber(){
+    Array.prototype.forEach.call(document.querySelectorAll('section[data-section]'), function(sec){
+      Array.prototype.forEach.call(sec.querySelectorAll('.qlist > .q'), function(card, i){
+        card.querySelector('.num').textContent = String(i + 1);
+      });
+    });
+  }
+
+  function updateProgress(){
+    var cards = document.querySelectorAll('.q');
+    var done = document.querySelectorAll('.q.done').length;
+    progressEl.textContent = done + ' / ' + cards.length + ' 답변';
+  }
+
+  /* ── 레이어 팝업 ───────────────────────── */
+  function openModal(section){
+    lastFocus = document.activeElement;
+    mErr.classList.remove('show');
+    mQuestion.value = '';
+    mAnswer.value = '';
+    if (section) mSection.value = section;
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function(){ mQuestion.focus(); }, 0);
+  }
+
+  function closeModal(){
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  function submitModal(){
+    var q = mQuestion.value.trim();
+    if (!q){
+      mErr.classList.add('show');
+      mQuestion.focus();
+      return;
+    }
+    addCustom(mSection.value, q, mAnswer.value);
+    closeModal();
+  }
+
+  document.getElementById('addBtn').addEventListener('click', function(){ openModal(null); });
+  Array.prototype.forEach.call(document.querySelectorAll('.add-btn'), function(btn){
+    btn.addEventListener('click', function(){ openModal(btn.getAttribute('data-add')); });
+  });
+  document.getElementById('modalSave').addEventListener('click', submitModal);
+  document.getElementById('modalCancel').addEventListener('click', closeModal);
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  overlay.addEventListener('mousedown', function(e){ if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', function(e){
+    if (!overlay.classList.contains('open')) return;
+    if (e.key === 'Escape') closeModal();
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') submitModal();
+  });
+  mQuestion.addEventListener('input', function(){
+    if (mQuestion.value.trim()) mErr.classList.remove('show');
+  });
+
+  /* ── 내보내기 ──────────────────────────── */
+  function toMarkdown(){
+    var lines = ['# 프로젝트 착수 전 질의사항', ''];
+    Array.prototype.forEach.call(document.querySelectorAll('section[data-section]'), function(sec){
+      var cards = sec.querySelectorAll('.qlist > .q');
+      if (!cards.length) return;
+      lines.push('', '## ' + sec.getAttribute('data-label'), '');
+      Array.prototype.forEach.call(cards, function(card, i){
+        var qt = card.querySelector('.qtext').innerText.replace(/\n{2,}/g, '\n').replace(/\s*추가\s*$/, '').trim();
+        var tag = card.hasAttribute('data-custom') ? ' _(추가)_' : '';
+        lines.push((i + 1) + '.' + tag + ' ' + qt.split('\n').join('\n   '));
+        var ans = (answers[card.getAttribute('data-key')] || '').trim();
+        lines.push('   - **답변:** ' + (ans ? ans.split('\n').join('\n     ') : '(미작성)'));
+        lines.push('');
+      });
+    });
+    return lines.join('\n');
+  }
+
+  document.getElementById('copyBtn').addEventListener('click', function(){
+    var md = toMarkdown();
+    function done(){ setStatus('클립보드에 복사됨', true); }
+    function fallback(){
+      var ta = document.createElement('textarea');
+      ta.value = md; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); }
+      catch(e){ setStatus('복사 실패 - 수동 복사 필요', false); }
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(md).then(done, fallback);
+    } else { fallback(); }
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', function(){
+    var blob = new Blob([toMarkdown()], {type:'text/markdown;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = '질의사항_답변.md';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    setStatus('파일 저장 요청됨', true);
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', function(){
+    if (!confirm('입력한 모든 답변을 삭제합니다.\n(추가한 질문은 그대로 유지됩니다.)\n\n계속할까요?')) return;
+    answers = {};
+    Array.prototype.forEach.call(document.querySelectorAll('textarea[data-key]'), function(ta){ ta.value = ''; });
+    Array.prototype.forEach.call(document.querySelectorAll('.q'), function(c){ c.classList.remove('done'); });
+    updateProgress();
+    persist('답변이 초기화되었습니다');
+  });
+
+  renumber();
+  updateProgress();
+  var has = Object.keys(answers).length > 0 || customs.length > 0;
+  setStatus(has ? '저장된 내용 불러옴' : '준비됨', has);
+})();
+</script>
+</body>
+</html>
